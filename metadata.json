@@ -1,0 +1,6 @@
+{
+  "name": "AgendaSmart · Studio Odontoiatrico",
+  "description": "Agenda condivisa per studio odontoiatrico con gestione appuntamenti, recupero disdette, promemoria e portale conferme pazienti.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
