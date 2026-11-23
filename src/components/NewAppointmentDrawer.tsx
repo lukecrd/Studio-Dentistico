@@ -147,11 +147,11 @@ export function NewAppointmentDrawer({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-[#18231d]/40 backdrop-blur-[1px] flex justify-end"
+      className="fixed inset-0 z-50 bg-[var(--color-backdrop)] backdrop-blur-[2px] flex justify-end animate-fade-in"
       onClick={() => !submitting && onClose()}
     >
       <div
-        className="w-full max-w-[460px] h-full bg-white border-l border-[var(--color-line)] shadow-2xl flex flex-col"
+        className="w-full max-w-[460px] h-full bg-white border-l border-[var(--color-line)] shadow-2xl flex flex-col animate-slide-right"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -181,14 +181,14 @@ export function NewAppointmentDrawer({
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
           {prefill?.replacingLabel && (
-            <div className="rounded-lg border border-[#d6e5d9] bg-[var(--color-clinical-tint)]/60 px-4 py-3 text-[12.5px] text-[var(--color-clinical)]">
+            <div className="rounded-lg border border-[var(--color-clinical-border)] bg-[var(--color-clinical-tint)] px-4 py-3 text-[12.5px] text-[var(--color-clinical)]">
               <div className="font-semibold">Rimpiazzo slot disdetto</div>
               <div className="mt-0.5 text-[var(--color-ink-soft)]">{prefill.replacingLabel}</div>
             </div>
           )}
 
           {error && (
-            <div className="rounded-lg border border-[#ebd0cb] bg-[var(--color-alert-tint)] px-4 py-3 text-[13px] text-[var(--color-alert)] flex items-start gap-2.5">
+            <div className="rounded-lg border border-[var(--color-alert-border)] bg-[var(--color-alert-tint)] px-4 py-3 text-[13px] text-[var(--color-alert)] flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -329,7 +329,7 @@ export function NewAppointmentDrawer({
           </div>
 
           {isProfCompatible && isChairCompatible && selectedProcedure && (
-            <div className="rounded-lg border border-[#d6e5d9] bg-[var(--color-clinical-tint)]/50 px-3.5 py-2.5 text-[12.5px] text-[var(--color-clinical)] flex items-center gap-2">
+            <div className="rounded-lg border border-[var(--color-clinical-border)] bg-[var(--color-clinical-tint)] px-3.5 py-2.5 text-[12.5px] text-[var(--color-clinical)] flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>Combinazione professionista e poltrona compatibile.</span>
             </div>

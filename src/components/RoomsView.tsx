@@ -43,9 +43,9 @@ export function RoomsView({ chairs, onCreateChair, onDeleteChair }: RoomsViewPro
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
       {/* Active Rooms List */}
-      <section className="xl:col-span-8 bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="xl:col-span-8 surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)]">
           <h2 className="text-[16px] font-semibold text-[var(--color-ink)] tabular-nums">
             Stanze operative attive ({chairs.length})
@@ -71,7 +71,7 @@ export function RoomsView({ chairs, onCreateChair, onDeleteChair }: RoomsViewPro
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#edf0eb]">
+            <tbody className="divide-y divide-slate-100">
               {chairs.map((chair) => {
                 const res = parseJsonArray<string>(chair.resources);
                 const isConfirming = confirmId === chair.id;
@@ -108,7 +108,7 @@ export function RoomsView({ chairs, onCreateChair, onDeleteChair }: RoomsViewPro
                             type="button"
                             disabled={isDeleting}
                             onClick={() => handleConfirmDelete(chair.id)}
-                            className="min-h-[34px] px-3 rounded-lg bg-[var(--color-alert)] text-white text-[12px] font-semibold hover:bg-[#993627] transition-colors disabled:opacity-60"
+                            className="min-h-[34px] px-3 rounded-lg bg-[var(--color-alert)] text-white text-[12px] font-semibold hover:bg-[var(--color-alert-hover)] transition-colors disabled:opacity-60"
                           >
                             {isDeleting ? 'Rimozione…' : 'Conferma'}
                           </button>
@@ -117,7 +117,7 @@ export function RoomsView({ chairs, onCreateChair, onDeleteChair }: RoomsViewPro
                         <button
                           type="button"
                           onClick={() => setConfirmId(chair.id)}
-                          className="min-h-[34px] px-3 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-alert)] hover:border-[#e3c3bd] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1.5"
+                          className="min-h-[34px] px-3 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-alert)] hover:border-[var(--color-alert-border)] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1.5"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>Rimuovi</span>
@@ -133,7 +133,7 @@ export function RoomsView({ chairs, onCreateChair, onDeleteChair }: RoomsViewPro
       </section>
 
       {/* Add Room Form */}
-      <section className="xl:col-span-4 bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="xl:col-span-4 surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)]">
           <h2 className="text-[15.5px] font-semibold text-[var(--color-ink)] flex items-center gap-2">
             <Plus className="w-4 h-4 text-[var(--color-clinical)]" />

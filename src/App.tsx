@@ -725,21 +725,23 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      <main className="lg:pl-[248px] min-h-screen pb-24 lg:pb-12">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-7 lg:px-10 py-6 lg:py-8">
-          {/* Clean Top Bar */}
-          <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-[var(--color-line)]">
+      <main className="lg:pl-[256px] min-h-screen pb-24 lg:pb-12">
+        {/* Clean Full-Width Frosted Workspace Header */}
+        <header className="lg:sticky lg:top-0 z-20 bg-white/90 backdrop-blur-md border-b border-[var(--color-line)]">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-7 lg:px-9 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3.5">
             <div className="min-w-0">
-              <h1 className="text-[24px] sm:text-[28px] font-bold tracking-[-0.03em] text-[var(--color-ink)] leading-tight">
+              <div className="flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--color-muted)]">
+                <span>AgendaSmart</span>
+                <span aria-hidden="true">/</span>
+                <span className="text-[var(--color-clinical)]">{headerInfo.title}</span>
+              </div>
+              <h1 className="text-[22px] sm:text-[24px] font-bold tracking-[-0.025em] text-[var(--color-ink)] leading-tight mt-0.5">
                 {headerInfo.title}
               </h1>
-              <p className="text-[13px] text-[var(--color-muted)] mt-0.5">
-                {headerInfo.subtitle}
-              </p>
             </div>
 
             <div className="flex items-center gap-2.5 shrink-0">
-              <label className="min-h-[40px] px-3 rounded-lg border border-[var(--color-line-strong)] bg-white inline-flex items-center gap-2 text-[13px] text-[var(--color-ink-soft)] focus-within:border-[var(--color-clinical)]">
+              <label className="min-h-[40px] px-3 rounded-lg border border-[var(--color-line-strong)] bg-white inline-flex items-center gap-2 text-[13px] text-[var(--color-ink-soft)] hover:border-slate-400 focus-within:border-[var(--color-clinical)] focus-within:ring-2 focus-within:ring-[var(--color-clinical)]/15 transition-all">
                 <Calendar className="w-4 h-4 text-[var(--color-muted)] shrink-0" />
                 <input
                   type="date"
@@ -760,22 +762,30 @@ export default function App() {
                   setBookingPrefill({ dateISO: dateISO(date), hour: 9 });
                   setBookingDrawerOpen(true);
                 }}
-                className="min-h-[40px] px-4 rounded-lg bg-[var(--color-clinical)] text-white text-[13px] font-semibold hover:bg-[var(--color-clinical-hover)] transition-colors inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                className="min-h-[40px] px-4 rounded-lg bg-[var(--color-clinical)] text-white text-[13px] font-semibold hover:bg-[var(--color-clinical-hover)] transition-colors inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-[0_1px_2px_rgba(15,118,110,0.22)]"
               >
                 <Plus className="w-4 h-4 shrink-0" />
                 <span>Nuovo appuntamento</span>
               </button>
             </div>
-          </header>
+          </div>
+        </header>
 
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-7 lg:px-9 py-6 lg:py-7">
           {/* Content Area */}
           {!catalog || !agenda ? (
-            <div className="space-y-4">
-              <div className="h-24 rounded-xl bg-white border border-[var(--color-line)] animate-pulse" />
-              <div className="h-[460px] rounded-xl bg-white border border-[var(--color-line)] animate-pulse" />
+            <div className="space-y-5">
+              <div className="h-[92px] rounded-xl bg-white border border-[var(--color-line)] animate-pulse" />
+              <div className="h-[520px] rounded-xl bg-white border border-[var(--color-line)] animate-pulse" />
             </div>
           ) : (
-            <div className={loadingData ? 'opacity-75 transition-opacity duration-150' : ''}>
+            <div
+              className={
+                loadingData
+                  ? 'opacity-70 transition-opacity duration-150'
+                  : 'transition-opacity duration-150'
+              }
+            >
               {page === 'agenda' && (
                 <AgendaView
                   date={date}
@@ -904,16 +914,16 @@ export default function App() {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto max-w-[380px] px-4 py-3 rounded-xl shadow-lg border text-[13px] font-medium flex items-center gap-2.5 ${
+            className={`pointer-events-auto max-w-[390px] px-4 py-3 rounded-xl shadow-[0_10px_30px_rgba(15,23,42,0.18)] border text-[13px] font-medium flex items-center gap-2.5 animate-scale-in ${
               toast.tone === 'error'
-                ? 'bg-[#3d1f1a] border-[#5c2c24] text-white'
-                : 'bg-[#1c3528] border-[#294c3a] text-white'
+                ? 'bg-[#2a1215] border-red-900/60 text-white'
+                : 'bg-[#0f172a] border-slate-700/80 text-white'
             }`}
           >
             {toast.tone === 'error' ? (
-              <AlertCircle className="w-4 h-4 text-[#f6a69a] shrink-0" />
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
             ) : (
-              <CheckCircle2 className="w-4 h-4 text-[#8ad1a8] shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
             )}
             <span>{toast.message}</span>
           </div>

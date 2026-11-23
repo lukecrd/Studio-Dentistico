@@ -24,7 +24,7 @@ interface TeamViewProps {
   onDeleteProfessional: (id: number) => Promise<void>;
 }
 
-const SWATCH_COLORS = ['#2b5942', '#3d7465', '#c77b55', '#9d7644', '#6b6394', '#437691', '#7d5a50'];
+const SWATCH_COLORS = ['#0f766e', '#0369a1', '#4f46e5', '#b45309', '#be185d', '#334155', '#15803d'];
 
 export function TeamView({
   professionals,
@@ -36,7 +36,7 @@ export function TeamView({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [specialty, setSpecialty] = useState('');
-  const [color, setColor] = useState('#2b5942');
+  const [color, setColor] = useState('#0f766e');
   const [selectedProcedures, setSelectedProcedures] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [confirmId, setConfirmId] = useState<number | null>(null);
@@ -46,7 +46,7 @@ export function TeamView({
     setEditingId(null);
     setName('');
     setSpecialty('');
-    setColor('#2b5942');
+    setColor('#0f766e');
     setSelectedProcedures([]);
   };
 
@@ -54,7 +54,7 @@ export function TeamView({
     setEditingId(prof.id);
     setName(prof.name);
     setSpecialty(prof.specialty);
-    setColor(prof.color || '#2b5942');
+    setColor(prof.color || '#0f766e');
     setSelectedProcedures(parseJsonArray<number>(prof.procedure_ids));
     setConfirmId(null);
   };
@@ -98,9 +98,9 @@ export function TeamView({
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
       {/* Staff Roster */}
-      <section className="xl:col-span-8 bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="xl:col-span-8 surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)]">
           <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
             Team clinico ({professionals.length})
@@ -128,7 +128,7 @@ export function TeamView({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#edf0eb]">
+            <tbody className="divide-y divide-slate-100">
               {professionals.map((prof) => {
                 const enabledNames = parseJsonArray<number>(prof.procedure_ids)
                   .map((id) => procedures.find((p) => p.id === id)?.name)
@@ -183,7 +183,7 @@ export function TeamView({
                             type="button"
                             disabled={isDeleting}
                             onClick={() => handleConfirmDelete(prof.id)}
-                            className="min-h-[34px] px-3 rounded-lg bg-[var(--color-alert)] text-white text-[12px] font-semibold hover:bg-[#993627] transition-colors disabled:opacity-60 whitespace-nowrap"
+                            className="min-h-[34px] px-3 rounded-lg bg-[var(--color-alert)] text-white text-[12px] font-semibold hover:bg-[var(--color-alert-hover)] transition-colors disabled:opacity-60 whitespace-nowrap"
                           >
                             {isDeleting ? 'Rimozione…' : 'Conferma'}
                           </button>
@@ -201,7 +201,7 @@ export function TeamView({
                           <button
                             type="button"
                             onClick={() => setConfirmId(prof.id)}
-                            className="min-h-[34px] px-2.5 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-alert)] hover:border-[#e3c3bd] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1 whitespace-nowrap"
+                            className="min-h-[34px] px-2.5 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-alert)] hover:border-[var(--color-alert-border)] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1 whitespace-nowrap"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             <span>Elimina</span>
@@ -218,7 +218,7 @@ export function TeamView({
       </section>
 
       {/* Add / Edit Professional Form */}
-      <section className="xl:col-span-4 bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="xl:col-span-4 surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)] flex items-start justify-between gap-2">
           <div>
             <h2 className="text-[15.5px] font-semibold text-[var(--color-ink)] flex items-center gap-2">

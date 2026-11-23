@@ -68,8 +68,8 @@ export function Sidebar({
   const renderGroup = (title: string, section: NavItem['section']) => {
     const items = NAV_ITEMS.filter((item) => item.section === section);
     return (
-      <div className="mb-5">
-        <div className="px-3 mb-1.5 text-[11px] font-medium text-[var(--color-muted)] tracking-tight">
+      <div className="mb-6 last:mb-0">
+        <div className="px-3 mb-2 text-[11px] font-medium text-slate-400/80 tracking-[0.02em]">
           {title}
         </div>
         <div className="space-y-0.5">
@@ -83,18 +83,23 @@ export function Sidebar({
                 type="button"
                 onClick={() => onNavigate(item.key)}
                 aria-current={active ? 'page' : undefined}
-                className={`w-full min-h-[40px] flex items-center gap-3 px-3 rounded-lg text-[13.5px] transition-colors duration-150 whitespace-nowrap ${
+                className={`w-full min-h-[40px] flex items-center gap-3 px-3 rounded-lg text-[13.5px] transition-all duration-150 whitespace-nowrap ${
                   active
-                    ? 'bg-white text-[var(--color-clinical)] font-semibold border border-[var(--color-line)] shadow-[0_1px_2px_rgba(24,35,29,0.04)]'
-                    : 'text-[var(--color-ink-soft)] hover:bg-[#e5eae2] hover:text-[var(--color-ink)] font-medium border border-transparent'
+                    ? 'bg-white/[0.11] text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
+                    : 'text-slate-300/85 hover:bg-white/[0.06] hover:text-white font-medium'
                 }`}
               >
-                <Icon className="w-[17px] h-[17px] shrink-0" strokeWidth={active ? 2 : 1.75} />
-                <span className="truncate">{item.label}</span>
+                <Icon
+                  className={`w-[17px] h-[17px] shrink-0 transition-colors ${
+                    active ? 'text-teal-400' : 'text-slate-400'
+                  }`}
+                  strokeWidth={active ? 2 : 1.75}
+                />
+                <span className="truncate tracking-[0.005em]">{item.label}</span>
                 {counter > 0 && (
                   <span
                     className={`ml-auto font-mono text-[11px] tabular-nums font-semibold ${
-                      active ? 'text-[var(--color-clinical)]' : 'text-[var(--color-warn)]'
+                      active ? 'text-teal-300' : 'text-amber-300'
                     }`}
                   >
                     {counter}
@@ -115,36 +120,36 @@ export function Sidebar({
 
   return (
     <>
-      {/* Desktop Left Rail */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 z-30 w-[248px] flex-col bg-[var(--color-rail)] border-r border-[var(--color-line)] px-4 py-6">
-        <div className="flex items-center gap-3 px-2 pb-6 mb-4 border-b border-[var(--color-line)]">
-          <BrandMark />
+      {/* Desktop Obsidian Slate Left Rail */}
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 z-30 w-[256px] flex-col bg-[var(--color-rail)] border-r border-slate-800/90 px-4 py-6 text-slate-100">
+        <div className="flex items-center gap-3 px-2 pb-6 mb-5 border-b border-slate-800/90">
+          <BrandMark tone="dark" />
           <div className="min-w-0">
-            <div className="font-[var(--font-display)] text-[16px] font-bold tracking-[-0.025em] text-[var(--color-ink)] leading-tight whitespace-nowrap">
+            <div className="font-[var(--font-display)] text-[16px] font-bold tracking-[-0.02em] text-white leading-tight whitespace-nowrap">
               AgendaSmart
             </div>
-            <div className="text-[11px] text-[var(--color-muted)] leading-tight mt-0.5 truncate">
+            <div className="text-[11.5px] text-slate-400 leading-tight mt-0.5 truncate">
               Studio Odontoiatrico
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto" aria-label="Navigazione principale">
+        <nav className="flex-1 overflow-y-auto pr-0.5" aria-label="Navigazione principale">
           {renderGroup('Operatività', 'operativita')}
           {renderGroup('Archivio clinico', 'archivio')}
           {renderGroup('Tracciabilità', 'sistema')}
         </nav>
 
-        <div className="pt-4 mt-4 border-t border-[var(--color-line)] flex items-center justify-between gap-2 px-1">
+        <div className="pt-4 mt-4 border-t border-slate-800/90 flex items-center justify-between gap-2 px-1">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-[var(--color-clinical-tint)] text-[var(--color-clinical)] flex items-center justify-center text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-teal-500/15 text-teal-300 ring-1 ring-inset ring-teal-400/25 flex items-center justify-center text-xs font-bold shrink-0">
               {user.username.slice(0, 1).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="text-[13px] font-semibold text-[var(--color-ink)] truncate">
+              <div className="text-[13px] font-semibold text-white truncate tracking-[0.005em]">
                 {user.username}
               </div>
-              <div className="text-[11px] text-[var(--color-muted)] truncate">
+              <div className="text-[11px] text-slate-400 truncate">
                 Segreteria · {user.role}
               </div>
             </div>
@@ -154,16 +159,16 @@ export function Sidebar({
             onClick={onLogout}
             title="Esci dalla sessione"
             aria-label="Esci dalla sessione"
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[#e5eae2] transition-colors shrink-0"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors shrink-0"
           >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
       </aside>
 
-      {/* Mobile Bottom Navigation (compact <= 64px to stay well under 15% mobile sticky cap) */}
+      {/* Mobile Bottom Navigation (<= 64px to stay under 15% mobile sticky cap) */}
       <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 z-30 h-16 bg-white border-t border-[var(--color-line)] px-2 grid grid-cols-4 items-center gap-1"
+        className="lg:hidden fixed bottom-0 inset-x-0 z-30 h-16 bg-white/95 backdrop-blur-md border-t border-[var(--color-line)] px-2 grid grid-cols-4 items-center gap-1"
         aria-label="Navigazione mobile"
       >
         {MOBILE_PRIMARY_KEYS.map((key) => {
@@ -220,11 +225,11 @@ export function Sidebar({
       {/* Mobile "Altro" Menu Popover */}
       {mobileMoreOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-20 bg-black/20"
+          className="lg:hidden fixed inset-0 z-20 bg-slate-900/30 backdrop-blur-[1px] animate-fade-in"
           onClick={() => setMobileMoreOpen(false)}
         >
           <div
-            className="absolute right-3 bottom-20 w-60 bg-white border border-[var(--color-line)] rounded-xl shadow-lg p-2 space-y-0.5"
+            className="absolute right-3 bottom-20 w-60 bg-white border border-[var(--color-line)] rounded-xl shadow-xl p-2 space-y-0.5 animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
             {secondaryMobileItems.map((item) => {

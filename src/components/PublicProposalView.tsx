@@ -100,9 +100,9 @@ export function PublicProposalView({ initialCode = '', onExitPortal }: PublicPro
     }).format(new Date(iso));
 
   return (
-    <main className="min-h-screen bg-[var(--color-canvas)] flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-[480px]">
-        <div className="bg-white border border-[var(--color-line)] rounded-2xl p-8 sm:p-9 shadow-[0_8px_30px_rgba(24,35,29,0.04)]">
+    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#f0fdfa_0%,_#f8fafc_55%,_#f1f5f9_100%)] flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-[480px] animate-scale-in">
+        <div className="bg-white border border-[var(--color-line)] rounded-2xl p-8 sm:p-9 shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <BrandMark />
@@ -216,7 +216,7 @@ export function PublicProposalView({ initialCode = '', onExitPortal }: PublicPro
               </div>
 
               {error && (
-                <div className="rounded-lg border border-[#ebd0cb] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
+                <div className="rounded-lg border border-[var(--color-alert-border)] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
@@ -258,7 +258,7 @@ export function PublicProposalView({ initialCode = '', onExitPortal }: PublicPro
               </div>
 
               {error && (
-                <div className="rounded-lg border border-[#ebd0cb] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
+                <div className="rounded-lg border border-[var(--color-alert-border)] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>

@@ -5,25 +5,36 @@
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-canvas: #f7f8f5;
-  --color-rail: #eff2ec;
+  /* 60-30-10 Cool Architectural Clinical Palette */
+  --color-canvas: #f8fafc;
+  --color-rail: #0f172a;
+  --color-rail-hover: #1e293b;
   --color-surface: #ffffff;
-  --color-surface-subtle: #f4f6f2;
-  --color-ink: #18231d;
-  --color-ink-soft: #435149;
-  --color-muted: #627067;
-  --color-line: #e2e7e0;
-  --color-line-strong: #cdd5cb;
+  --color-surface-subtle: #f1f5f9;
+  --color-ink: #0f172a;
+  --color-ink-soft: #334155;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-line-subtle: #f1f5f9;
+  --color-line-strong: #cbd5e1;
 
-  --color-clinical: #2b5942;
-  --color-clinical-hover: #204633;
-  --color-clinical-tint: #eaf2ec;
+  /* 10% High-Intent Medical Petrol Teal Accent */
+  --color-clinical: #0f766e;
+  --color-clinical-hover: #115e59;
+  --color-clinical-tint: #f0fdfa;
+  --color-clinical-border: #99f6e4;
 
-  --color-alert: #b54534;
-  --color-alert-tint: #fbeef0;
+  /* Semantic Status Colors */
+  --color-alert: #dc2626;
+  --color-alert-hover: #b91c1c;
+  --color-alert-tint: #fef2f2;
+  --color-alert-border: #fecaca;
 
-  --color-warn: #9a6217;
-  --color-warn-tint: #fbf5e8;
+  --color-warn: #b45309;
+  --color-warn-tint: #fffbeb;
+  --color-warn-border: #fde68a;
+
+  --color-backdrop: rgba(15, 23, 42, 0.48);
 }
 
 @layer base {
@@ -54,19 +65,35 @@
     font-family: inherit;
   }
 
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not(.border-0),
+  select,
+  textarea {
+    transition: border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not(.border-0):focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-clinical);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  }
+
   ::selection {
-    background-color: #cde0d2;
-    color: #143322;
+    background-color: #ccfbf1;
+    color: #134e4a;
   }
 
   :focus-visible {
-    outline: 2px solid #2b5942;
+    outline: 2px solid var(--color-clinical);
     outline-offset: 2px;
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
   }
 
   ::-webkit-scrollbar-track {
@@ -74,17 +101,75 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #c8d2c6;
-    border-radius: 4px;
+    background: #cbd5e1;
+    border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #9fb09e;
+    background: #94a3b8;
   }
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+.surface-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0.6;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-right {
+  animation: slideInRight 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-slide-right {
+    animation: none !important;
+  }
 }
 
 @media print {
@@ -93,7 +178,7 @@
   }
   body {
     background: #ffffff !important;
-    color: #111111 !important;
+    color: #0f172a !important;
   }
   body.printing-summary * {
     visibility: hidden;
@@ -119,4 +204,3 @@
     display: none !important;
   }
 }
-

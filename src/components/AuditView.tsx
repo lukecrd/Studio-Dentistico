@@ -25,7 +25,7 @@ export function AuditView({ events }: AuditViewProps) {
   }, [events, query]);
 
   return (
-    <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+    <section className="surface-card overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--color-line)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
@@ -67,7 +67,7 @@ export function AuditView({ events }: AuditViewProps) {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#edf0eb]">
+          <tbody className="divide-y divide-slate-100">
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-6 py-12 text-center">

@@ -249,11 +249,11 @@ export function RemindersView({
   const availableSims = selectedDeviceObj?.sims || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Channels Configuration Grid: WhatsApp + TextBee SMS */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
         {/* Studio WhatsApp Connection Panel */}
-        <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+        <section className="surface-card overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--color-line)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-lg bg-[var(--color-clinical-tint)] text-[var(--color-clinical)] flex items-center justify-center shrink-0 mt-0.5">
@@ -287,7 +287,7 @@ export function RemindersView({
                   type="button"
                   disabled={disconnecting}
                   onClick={handleDisconnect}
-                  className="min-h-[36px] px-3 rounded-lg border border-[#e3c3bd] bg-white text-[12.5px] font-medium text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1.5 disabled:opacity-60 whitespace-nowrap shrink-0"
+                  className="min-h-[36px] px-3 rounded-lg border border-[var(--color-alert-border)] bg-white text-[12.5px] font-medium text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1.5 disabled:opacity-60 whitespace-nowrap shrink-0"
                 >
                   <Unlink className="w-3.5 h-3.5" />
                   <span>{disconnecting ? 'Rimozione…' : 'Scollega'}</span>
@@ -412,7 +412,7 @@ export function RemindersView({
         </section>
 
         {/* TextBee SMS Gateway Panel */}
-        <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+        <section className="surface-card overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--color-line)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-lg bg-[var(--color-clinical-tint)] text-[var(--color-clinical)] flex items-center justify-center shrink-0 mt-0.5">
@@ -641,7 +641,7 @@ export function RemindersView({
       </div>
 
       {/* Outbox Queue Panel */}
-      <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
           <div>
             <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
@@ -661,9 +661,9 @@ export function RemindersView({
               <button
                 type="button"
                 onClick={() => setWindowMode('24h')}
-                className={`px-2.5 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${
+                className={`px-2.5 py-1.5 text-[12px] font-medium rounded-md transition-all whitespace-nowrap ${
                   windowMode === '24h'
-                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(24,35,29,0.08)]'
+                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
               >
@@ -672,9 +672,9 @@ export function RemindersView({
               <button
                 type="button"
                 onClick={() => setWindowMode('48h')}
-                className={`px-2.5 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${
+                className={`px-2.5 py-1.5 text-[12px] font-medium rounded-md transition-all whitespace-nowrap ${
                   windowMode === '48h'
-                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(24,35,29,0.08)]'
+                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
               >
@@ -712,7 +712,7 @@ export function RemindersView({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#edf0eb]">
+            <tbody className="divide-y divide-slate-100">
               {reminders.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center">

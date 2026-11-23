@@ -181,7 +181,7 @@ export function AgendaView({
           id: `chair-${chair.id}`,
           title: chair.name,
           subtitle: resList.length ? resList.join(' · ') : 'Poltrona operativa',
-          accent: '#2b5942',
+          accent: '#0f766e',
           items: sortedFilteredAppointments.filter((a) => a.chair_id === chair.id),
         };
       });
@@ -248,9 +248,13 @@ export function AgendaView({
     setTimeout(cleanup, 1500);
   };
 
+  const nowDate = new Date();
+  const isViewingToday = view === 'day' && dateISO(date) === todayISO;
+  const currentHour = nowDate.getHours();
+
   const renderAppointmentCard = (appt: Appointment, compact = false) => {
     const prof = catalog.professionals.find((p) => p.id === appt.professional_id);
-    const accent = prof?.color || appt.color || '#2b5942';
+    const accent = prof?.color || appt.color || '#0f766e';
 
     return (
       <button
@@ -260,12 +264,12 @@ export function AgendaView({
           setSelectedAppointment(appt);
           setConfirmingCancel(false);
         }}
-        className="w-full text-left group rounded-lg border border-[var(--color-line)] bg-white hover:border-[#b9c6b8] hover:shadow-[0_2px_8px_rgba(24,35,29,0.06)] transition-all duration-150 overflow-hidden mb-1.5 last:mb-0"
+        className="w-full text-left group rounded-lg border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.07)] hover:-translate-y-[1px] transition-all duration-150 overflow-hidden mb-1.5 last:mb-0"
       >
-        <div className="h-[3px] w-full" style={{ backgroundColor: accent }} />
-        <div className={compact ? 'p-2.5' : 'p-3'}>
+        <div className="h-[2.5px] w-full" style={{ backgroundColor: accent }} />
+        <div className={compact ? 'p-2.5' : 'px-3 py-2.5'}>
           <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="font-mono text-[11px] font-medium text-[var(--color-ink-soft)] tabular-nums">
+            <span className="font-mono text-[11px] font-medium text-[var(--color-muted)] tabular-nums">
               {fmtTimeRange(appt.starts_at, appt.duration)}
             </span>
             {appt.confirmation_state === 'confirmed' && (
@@ -293,7 +297,7 @@ export function AgendaView({
           </div>
 
           <div className="text-[12px] text-[var(--color-ink-soft)] mt-0.5 truncate">
-            {appt.procedure} <span className="text-[var(--color-muted)]">·</span>{' '}
+            {appt.procedure} <span className="text-slate-300">·</span>{' '}
             <span className="tabular-nums text-[var(--color-muted)]">{appt.duration} min</span>
           </div>
 
@@ -306,9 +310,9 @@ export function AgendaView({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Inline Operational Summary Strip (Zero nested cards) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 border border-[var(--color-line)] rounded-xl bg-white divide-y lg:divide-y-0 lg:divide-x divide-[var(--color-line)]">
+    <div className="space-y-5">
+      {/* Inline Operational Summary Strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 surface-card divide-y lg:divide-y-0 lg:divide-x divide-[var(--color-line)]">
         <div className="px-5 py-4">
           <div className="text-[12px] text-[var(--color-muted)] font-medium">
             {view === 'week' ? 'Appuntamenti settimana' : 'Appuntamenti giorno'}
@@ -373,7 +377,7 @@ export function AgendaView({
       </div>
 
       {/* Main Clinical Schedule Board */}
-      <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="surface-card overflow-hidden">
         {/* Toolbar */}
         <div className="px-5 py-4 border-b border-[var(--color-line)] flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
           <div>
@@ -395,9 +399,9 @@ export function AgendaView({
               <button
                 type="button"
                 onClick={() => onChangeView('day')}
-                className={`px-3 py-1.5 text-[12.5px] font-medium rounded-md transition-colors whitespace-nowrap shrink-0 ${
+                className={`px-3 py-1.5 text-[12.5px] font-medium rounded-md transition-all whitespace-nowrap shrink-0 ${
                   view === 'day'
-                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(24,35,29,0.08)]'
+                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
               >
@@ -406,9 +410,9 @@ export function AgendaView({
               <button
                 type="button"
                 onClick={() => onChangeView('week')}
-                className={`px-3 py-1.5 text-[12.5px] font-medium rounded-md transition-colors whitespace-nowrap shrink-0 ${
+                className={`px-3 py-1.5 text-[12.5px] font-medium rounded-md transition-all whitespace-nowrap shrink-0 ${
                   view === 'week'
-                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(24,35,29,0.08)]'
+                    ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
               >
@@ -448,7 +452,7 @@ export function AgendaView({
               aria-label="Filtra per professionista"
               value={filters.professional}
               onChange={(e) => onChangeFilters({ ...filters, professional: e.target.value })}
-              className="min-h-[36px] px-3 pr-7 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12.5px] text-[var(--color-ink-soft)] hover:border-[#9eb09f] max-w-[180px]"
+              className="min-h-[36px] px-3 pr-7 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12.5px] text-[var(--color-ink-soft)] hover:border-slate-400 max-w-[180px]"
             >
               <option value="">Tutti i professionisti</option>
               {catalog.professionals.map((p) => (
@@ -462,7 +466,7 @@ export function AgendaView({
               aria-label="Filtra per poltrona"
               value={filters.chair}
               onChange={(e) => onChangeFilters({ ...filters, chair: e.target.value })}
-              className="min-h-[36px] px-3 pr-7 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12.5px] text-[var(--color-ink-soft)] hover:border-[#9eb09f] max-w-[160px]"
+              className="min-h-[36px] px-3 pr-7 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12.5px] text-[var(--color-ink-soft)] hover:border-slate-400 max-w-[160px]"
             >
               <option value="">Tutte le poltrone</option>
               {catalog.chairs.map((c) => (
@@ -476,7 +480,7 @@ export function AgendaView({
               aria-label="Filtra per prestazione"
               value={filters.procedure}
               onChange={(e) => onChangeFilters({ ...filters, procedure: e.target.value })}
-              className="min-h-[36px] px-3 pr-7 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12.5px] text-[var(--color-ink-soft)] hover:border-[#9eb09f] max-w-[175px]"
+              className="min-h-[36px] px-3 pr-7 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12.5px] text-[var(--color-ink-soft)] hover:border-slate-400 max-w-[175px]"
             >
               <option value="">Tutte le prestazioni</option>
               {catalog.procedures.map((pr) => (
@@ -562,46 +566,57 @@ export function AgendaView({
                 </tr>
               </thead>
               <tbody>
-                {HOURS.map((hour) => (
-                  <tr key={hour} className="group/row">
-                    <td className="sticky left-0 z-10 w-[76px] bg-[#fafbf9] border-b border-r border-[var(--color-line)] px-3 py-3 align-top font-mono text-[11.5px] font-medium text-[var(--color-muted)] tabular-nums">
-                      {String(hour).padStart(2, '0')}:00
-                    </td>
-                    {visibleProfessionals.map((prof) => {
-                      const slotAppts = filteredAppointments.filter(
-                        (a) =>
-                          new Date(a.starts_at).getHours() === hour &&
-                          a.professional_id === prof.id
-                      );
-                      return (
-                        <td
-                          key={prof.id}
-                          className="border-b border-r last:border-r-0 border-[#edf0eb] p-2 align-top min-w-[170px] h-[88px] bg-white hover:bg-[#fafcf9] transition-colors relative group/cell"
-                        >
-                          {slotAppts.length > 0 ? (
-                            slotAppts.map((a) => renderAppointmentCard(a, false))
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                onOpenNewBooking({
-                                  dateISO: dateISO(date),
-                                  hour,
-                                  professionalId: prof.id,
-                                })
-                              }
-                              aria-label={`Nuovo appuntamento alle ${String(hour).padStart(2, '0')}:00 con ${prof.name}`}
-                              className="w-full h-full min-h-[70px] rounded-lg border border-dashed border-transparent group-hover/cell:border-[var(--color-line-strong)] flex items-center justify-center gap-1 text-[11.5px] font-medium text-transparent group-hover/cell:text-[var(--color-muted)] hover:!text-[var(--color-clinical)] hover:!border-[var(--color-clinical)]/40 hover:bg-[var(--color-clinical-tint)]/35 transition-all"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                              <span>Prenota</span>
-                            </button>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
+                {HOURS.map((hour) => {
+                  const isCurrentHour = isViewingToday && currentHour === hour;
+                  return (
+                    <tr key={hour} className="group/row">
+                      <td
+                        className={`sticky left-0 z-10 w-[76px] border-b border-r border-[var(--color-line)] px-3 py-3 align-top font-mono text-[11.5px] tabular-nums ${
+                          isCurrentHour
+                            ? 'bg-[var(--color-clinical-tint)] text-[var(--color-clinical)] font-semibold'
+                            : 'bg-slate-50/95 text-[var(--color-muted)] font-medium'
+                        }`}
+                      >
+                        {String(hour).padStart(2, '0')}:00
+                      </td>
+                      {visibleProfessionals.map((prof) => {
+                        const slotAppts = filteredAppointments.filter(
+                          (a) =>
+                            new Date(a.starts_at).getHours() === hour &&
+                            a.professional_id === prof.id
+                        );
+                        return (
+                          <td
+                            key={prof.id}
+                            className={`border-b border-r last:border-r-0 border-slate-100 p-2 align-top min-w-[170px] h-[88px] transition-colors relative group/cell ${
+                              isCurrentHour ? 'bg-teal-50/20' : 'bg-white'
+                            } hover:bg-slate-50/75`}
+                          >
+                            {slotAppts.length > 0 ? (
+                              slotAppts.map((a) => renderAppointmentCard(a, false))
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  onOpenNewBooking({
+                                    dateISO: dateISO(date),
+                                    hour,
+                                    professionalId: prof.id,
+                                  })
+                                }
+                                aria-label={`Nuovo appuntamento alle ${String(hour).padStart(2, '0')}:00 con ${prof.name}`}
+                                className="w-full h-full min-h-[70px] rounded-lg border border-dashed border-transparent group-hover/cell:border-slate-300 flex items-center justify-center gap-1 text-[11.5px] font-medium text-transparent group-hover/cell:text-[var(--color-muted)] hover:!text-[var(--color-clinical)] hover:!border-[var(--color-clinical)]/40 hover:bg-[var(--color-clinical-tint)]/70 transition-all"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Prenota</span>
+                              </button>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           ) : (
@@ -621,7 +636,7 @@ export function AgendaView({
                       <th
                         key={iso}
                         className={`border-b border-r last:border-r-0 border-[var(--color-line)] px-3 py-3 text-left align-top ${
-                          isToday ? 'bg-[var(--color-clinical-tint)]/55' : 'bg-[var(--color-surface-subtle)]'
+                          isToday ? 'bg-[var(--color-clinical-tint)]' : 'bg-[var(--color-surface-subtle)]'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
@@ -644,7 +659,7 @@ export function AgendaView({
               <tbody>
                 {HOURS.map((hour) => (
                   <tr key={hour}>
-                    <td className="sticky left-0 z-10 w-[76px] bg-[#fafbf9] border-b border-r border-[var(--color-line)] px-3 py-3 align-top font-mono text-[11.5px] font-medium text-[var(--color-muted)] tabular-nums">
+                    <td className="sticky left-0 z-10 w-[76px] bg-slate-50/95 border-b border-r border-[var(--color-line)] px-3 py-3 align-top font-mono text-[11.5px] font-medium text-[var(--color-muted)] tabular-nums">
                       {String(hour).padStart(2, '0')}:00
                     </td>
                     {weekDays.map((day) => {
@@ -658,9 +673,9 @@ export function AgendaView({
                       return (
                         <td
                           key={iso}
-                          className={`border-b border-r last:border-r-0 border-[#edf0eb] p-1.5 align-top min-w-[150px] h-[82px] group/cell transition-colors ${
-                            isToday ? 'bg-[#fbfdf9]' : 'bg-white'
-                          } hover:bg-[#f6faf6]`}
+                          className={`border-b border-r last:border-r-0 border-slate-100 p-1.5 align-top min-w-[150px] h-[82px] group/cell transition-colors ${
+                            isToday ? 'bg-teal-50/25' : 'bg-white'
+                          } hover:bg-slate-50/75`}
                         >
                           {slotAppts.length > 0 ? (
                             slotAppts.map((a) => renderAppointmentCard(a, true))
@@ -677,7 +692,7 @@ export function AgendaView({
                                 })
                               }
                               aria-label={`Nuovo appuntamento il ${iso} alle ${String(hour).padStart(2, '0')}:00`}
-                              className="w-full h-full min-h-[66px] rounded-lg border border-dashed border-transparent group-hover/cell:border-[var(--color-line-strong)] flex items-center justify-center text-transparent group-hover/cell:text-[var(--color-muted)] hover:!text-[var(--color-clinical)] hover:bg-[var(--color-clinical-tint)]/35 transition-all"
+                              className="w-full h-full min-h-[66px] rounded-lg border border-dashed border-transparent group-hover/cell:border-slate-300 flex items-center justify-center text-transparent group-hover/cell:text-[var(--color-muted)] hover:!text-[var(--color-clinical)] hover:bg-[var(--color-clinical-tint)]/70 transition-all"
                             >
                               <Plus className="w-3.5 h-3.5" />
                             </button>
@@ -696,7 +711,7 @@ export function AgendaView({
       {/* Appointment Detail & Safe Cancellation Modal */}
       {selectedAppointment && (
         <div
-          className="fixed inset-0 z-50 bg-[#18231d]/40 backdrop-blur-[1px] flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] backdrop-blur-[2px] flex items-center justify-center p-4 animate-fade-in"
           onClick={() => {
             if (!cancelling) {
               setSelectedAppointment(null);
@@ -705,7 +720,7 @@ export function AgendaView({
           }}
         >
           <div
-            className="w-full max-w-[460px] bg-white border border-[var(--color-line)] rounded-xl shadow-xl overflow-hidden"
+            className="w-full max-w-[460px] bg-white border border-[var(--color-line)] rounded-xl shadow-2xl overflow-hidden animate-scale-in"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -713,7 +728,7 @@ export function AgendaView({
           >
             <div
               className="h-1 w-full"
-              style={{ backgroundColor: selectedAppointment.color || '#2b5942' }}
+              style={{ backgroundColor: selectedAppointment.color || '#0f766e' }}
             />
             <div className="px-6 py-5 border-b border-[var(--color-line)] flex items-start justify-between gap-4">
               <div className="flex items-center gap-3 min-w-0">
@@ -818,10 +833,10 @@ export function AgendaView({
               </div>
 
               {confirmingCancel ? (
-                <div className="rounded-lg border border-[#ebd0cb] bg-[var(--color-alert-tint)] p-4 space-y-3">
+                <div className="rounded-lg border border-[var(--color-alert-border)] bg-[var(--color-alert-tint)] p-4 space-y-3">
                   <div className="flex items-start gap-2.5">
                     <AlertTriangle className="w-4 h-4 text-[var(--color-alert)] shrink-0 mt-0.5" />
-                    <div className="text-[12.5px] text-[#7c2e22] leading-relaxed">
+                    <div className="text-[12.5px] text-red-900 leading-relaxed">
                       Annullando l&apos;appuntamento delle{' '}
                       <strong className="font-mono tabular-nums">
                         {fmtTime(selectedAppointment.starts_at)}
@@ -843,7 +858,7 @@ export function AgendaView({
                       type="button"
                       disabled={cancelling}
                       onClick={handleConfirmCancel}
-                      className="min-h-[38px] px-4 rounded-lg bg-[var(--color-alert)] text-white text-[12.5px] font-semibold hover:bg-[#993627] transition-colors disabled:opacity-60 whitespace-nowrap"
+                      className="min-h-[38px] px-4 rounded-lg bg-[var(--color-alert)] text-white text-[12.5px] font-semibold hover:bg-[var(--color-alert-hover)] transition-colors disabled:opacity-60 whitespace-nowrap"
                     >
                       {cancelling ? 'Annullamento…' : 'Conferma disdetta'}
                     </button>
@@ -854,7 +869,7 @@ export function AgendaView({
                   <button
                     type="button"
                     onClick={() => setConfirmingCancel(true)}
-                    className="min-h-[40px] px-4 rounded-lg border border-[#e3c3bd] bg-white text-[13px] font-semibold text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors whitespace-nowrap"
+                    className="min-h-[40px] px-4 rounded-lg border border-[var(--color-alert-border)] bg-white text-[13px] font-semibold text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors whitespace-nowrap"
                   >
                     Annulla e libera slot
                   </button>
@@ -875,11 +890,11 @@ export function AgendaView({
       {/* Printable Daily / Weekly Summary Sheet Modal */}
       {summaryOpen && (
         <div
-          className="fixed inset-0 z-50 bg-[#18231d]/45 backdrop-blur-[1px] flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] backdrop-blur-[2px] flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setSummaryOpen(false)}
         >
           <div
-            className="print-summary-root w-full max-w-[920px] max-h-[90vh] bg-white border border-[var(--color-line)] rounded-xl shadow-xl flex flex-col overflow-hidden"
+            className="print-summary-root w-full max-w-[920px] max-h-[90vh] bg-white border border-[var(--color-line)] rounded-xl shadow-2xl flex flex-col overflow-hidden animate-scale-in"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -1007,7 +1022,7 @@ export function AgendaView({
                           <th className="px-4 py-2 text-right">Stato</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#edf0eb] text-[12.5px]">
+                      <tbody className="divide-y divide-slate-100 text-[12.5px]">
                         {group.items.map((appt) => (
                           <tr key={appt.id}>
                             {view === 'week' && (

@@ -92,9 +92,9 @@ export function PublicConfirmationView({
     : '';
 
   return (
-    <main className="min-h-screen bg-[var(--color-canvas)] flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-[460px]">
-        <div className="bg-white border border-[var(--color-line)] rounded-2xl p-8 sm:p-9 shadow-[0_8px_30px_rgba(24,35,29,0.04)]">
+    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#f0fdfa_0%,_#f8fafc_55%,_#f1f5f9_100%)] flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-[460px] animate-scale-in">
+        <div className="bg-white border border-[var(--color-line)] rounded-2xl p-8 sm:p-9 shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <BrandMark />
@@ -179,7 +179,7 @@ export function PublicConfirmationView({
               </div>
 
               {error && (
-                <div className="rounded-lg border border-[#ebd0cb] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
+                <div className="rounded-lg border border-[var(--color-alert-border)] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
@@ -190,7 +190,7 @@ export function PublicConfirmationView({
                   type="button"
                   disabled={submitting}
                   onClick={() => handleDecision('confirm')}
-                  className="w-full min-h-[46px] px-4 rounded-lg bg-[var(--color-clinical)] text-white text-[14px] font-semibold hover:bg-[var(--color-clinical-hover)] transition-colors disabled:opacity-60"
+                  className="w-full min-h-[46px] px-4 rounded-lg bg-[var(--color-clinical)] text-white text-[14px] font-semibold hover:bg-[var(--color-clinical-hover)] transition-colors disabled:opacity-60 shadow-[0_1px_2px_rgba(15,118,110,0.2)]"
                 >
                   {submitting ? 'Registrazione…' : 'Conferma appuntamento'}
                 </button>
@@ -198,7 +198,7 @@ export function PublicConfirmationView({
                   type="button"
                   disabled={submitting}
                   onClick={() => handleDecision('cancel')}
-                  className="w-full min-h-[46px] px-4 rounded-lg border border-[#e3c3bd] bg-white text-[14px] font-semibold text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors disabled:opacity-60"
+                  className="w-full min-h-[46px] px-4 rounded-lg border border-[var(--color-alert-border)] bg-white text-[14px] font-semibold text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors disabled:opacity-60"
                 >
                   Disdici appuntamento
                 </button>
@@ -221,7 +221,7 @@ export function PublicConfirmationView({
               </div>
 
               {error && (
-                <div className="rounded-lg border border-[#ebd0cb] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
+                <div className="rounded-lg border border-[var(--color-alert-border)] bg-[var(--color-alert-tint)] px-3.5 py-2.5 text-[13px] text-[var(--color-alert)] flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div>
                     <div>{error}</div>

@@ -146,9 +146,9 @@ export function CancellationsView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Operational Summary Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 border border-[var(--color-line)] rounded-xl bg-white divide-y lg:divide-y-0 lg:divide-x divide-[var(--color-line)]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 surface-card divide-y lg:divide-y-0 lg:divide-x divide-[var(--color-line)]">
         <div className="px-5 py-4">
           <div className="text-[12px] text-[var(--color-muted)] font-medium">
             Slot liberi da rimpiazzare
@@ -201,7 +201,7 @@ export function CancellationsView({
       </div>
 
       {/* Cancellations Table Panel */}
-      <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)] flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
           <div>
             <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
@@ -227,9 +227,9 @@ export function CancellationsView({
                   key={key}
                   type="button"
                   onClick={() => setFilter(key)}
-                  className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap shrink-0 tabular-nums ${
+                  className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-all whitespace-nowrap shrink-0 tabular-nums ${
                     filter === key
-                      ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(24,35,29,0.08)]'
+                      ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
                       : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                   }`}
                 >
@@ -273,7 +273,7 @@ export function CancellationsView({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#edf0eb]">
+            <tbody className="divide-y divide-slate-100">
               {visibleItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">
@@ -408,11 +408,11 @@ export function CancellationsView({
       {/* Replace Slot Modal */}
       {activeSlot && (
         <div
-          className="fixed inset-0 z-50 bg-[#18231d]/40 backdrop-blur-[1px] flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] backdrop-blur-[2px] flex items-center justify-center p-4 animate-fade-in"
           onClick={() => !replacingId && setActiveSlot(null)}
         >
           <div
-            className="w-full max-w-[600px] max-h-[88vh] flex flex-col bg-white border border-[var(--color-line)] rounded-xl shadow-xl overflow-hidden"
+            className="w-full max-w-[600px] max-h-[88vh] flex flex-col bg-white border border-[var(--color-line)] rounded-xl shadow-2xl overflow-hidden animate-scale-in"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -420,7 +420,7 @@ export function CancellationsView({
           >
             <div
               className="h-1 w-full"
-              style={{ backgroundColor: activeSlot.color || '#2b5942' }}
+              style={{ backgroundColor: activeSlot.color || '#0f766e' }}
             />
 
             <div className="px-6 py-5 border-b border-[var(--color-line)] flex items-start justify-between gap-4">
@@ -499,7 +499,7 @@ export function CancellationsView({
                     </span>
                   </div>
                 ) : (
-                  <div className="border border-[var(--color-line)] rounded-lg divide-y divide-[#edf0eb] overflow-hidden">
+                  <div className="border border-[var(--color-line)] rounded-lg divide-y divide-slate-100 overflow-hidden">
                     {activeSlot.candidates.map((cand) => {
                       const isBusy = replacingId === cand.id;
                       return (

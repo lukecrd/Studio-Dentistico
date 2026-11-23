@@ -94,10 +94,10 @@ export function ProceduresView({
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-      <div className="xl:col-span-8 space-y-6">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+      <div className="xl:col-span-8 space-y-5">
         {/* Procedures Table */}
-        <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+        <section className="surface-card overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--color-line)]">
             <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
               Catalogo trattamenti ({procedures.length})
@@ -128,7 +128,7 @@ export function ProceduresView({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0eb]">
+              <tbody className="divide-y divide-slate-100">
                 {procedures.map((proc) => {
                   const res = parseJsonArray<string>(proc.resources);
                   const isEditing = editingId === proc.id;
@@ -171,7 +171,7 @@ export function ProceduresView({
                               type="button"
                               disabled={isDeleting}
                               onClick={() => handleConfirmDelete(proc.id)}
-                              className="min-h-[34px] px-3 rounded-lg bg-[var(--color-alert)] text-white text-[12px] font-semibold hover:bg-[#993627] transition-colors disabled:opacity-60 whitespace-nowrap"
+                              className="min-h-[34px] px-3 rounded-lg bg-[var(--color-alert)] text-white text-[12px] font-semibold hover:bg-[var(--color-alert-hover)] transition-colors disabled:opacity-60 whitespace-nowrap"
                             >
                               {isDeleting ? 'Rimozione…' : 'Conferma'}
                             </button>
@@ -189,7 +189,7 @@ export function ProceduresView({
                             <button
                               type="button"
                               onClick={() => setConfirmId(proc.id)}
-                              className="min-h-[34px] px-2.5 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-alert)] hover:border-[#e3c3bd] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1 whitespace-nowrap"
+                              className="min-h-[34px] px-2.5 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-alert)] hover:border-[var(--color-alert-border)] hover:bg-[var(--color-alert-tint)] transition-colors inline-flex items-center gap-1 whitespace-nowrap"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                               <span>Elimina</span>
@@ -206,7 +206,7 @@ export function ProceduresView({
         </section>
 
         {/* Room Equipment Matrix */}
-        <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+        <section className="surface-card overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--color-line)]">
             <h2 className="text-[15.5px] font-semibold text-[var(--color-ink)]">
               Dotazione delle stanze attive
@@ -215,7 +215,7 @@ export function ProceduresView({
               Riferimento rapido delle attrezzature verificate durante la prenotazione
             </p>
           </div>
-          <div className="divide-y divide-[#edf0eb]">
+          <div className="divide-y divide-slate-100">
             {chairs.map((c) => {
               const res = parseJsonArray<string>(c.resources);
               return (
@@ -237,7 +237,7 @@ export function ProceduresView({
       </div>
 
       {/* Add / Edit Procedure Form */}
-      <section className="xl:col-span-4 bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="xl:col-span-4 surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)] flex items-start justify-between gap-2">
           <div>
             <h2 className="text-[15.5px] font-semibold text-[var(--color-ink)] flex items-center gap-2">

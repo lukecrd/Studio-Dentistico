@@ -127,9 +127,9 @@ export function ProposalsView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* 3-Step Safeguard Workflow Strip */}
-      <div className="grid grid-cols-1 md:grid-cols-3 bg-white border border-[var(--color-line)] rounded-xl divide-y md:divide-y-0 md:divide-x divide-[var(--color-line)]">
+      <div className="grid grid-cols-1 md:grid-cols-3 surface-card divide-y md:divide-y-0 md:divide-x divide-[var(--color-line)]">
         <div className="p-5">
           <div className="font-mono text-[11px] font-semibold text-[var(--color-clinical)] mb-1">
             01. Slot liberato
@@ -169,7 +169,7 @@ export function ProposalsView({
       </div>
 
       {/* Proposals Table Panel */}
-      <section className="bg-white border border-[var(--color-line)] rounded-xl overflow-hidden">
+      <section className="surface-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--color-line)] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
           <div>
             <h2 className="text-[16px] font-semibold text-[var(--color-ink)]">
@@ -209,9 +209,9 @@ export function ProposalsView({
                   key={key}
                   type="button"
                   onClick={() => setFilter(key)}
-                  className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap shrink-0 tabular-nums ${
+                  className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-all whitespace-nowrap shrink-0 tabular-nums ${
                     filter === key
-                      ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(24,35,29,0.08)]'
+                      ? 'bg-white text-[var(--color-ink)] shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
                       : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                   }`}
                 >
@@ -240,7 +240,7 @@ export function ProposalsView({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#edf0eb]">
+            <tbody className="divide-y divide-slate-100">
               {visibleProposals.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center">
@@ -383,7 +383,7 @@ export function ProposalsView({
                                 type="button"
                                 disabled={isBusy || isSendingSms}
                                 onClick={() => handleAction(p.id, 'decline')}
-                                className="min-h-[34px] px-2.5 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-muted)] hover:text-[var(--color-alert)] hover:border-[#e3c3bd] transition-colors disabled:opacity-50 whitespace-nowrap shrink-0"
+                                className="min-h-[34px] px-2.5 rounded-lg border border-[var(--color-line-strong)] bg-white text-[12px] font-medium text-[var(--color-muted)] hover:text-[var(--color-alert)] hover:border-[var(--color-alert-border)] transition-colors disabled:opacity-50 whitespace-nowrap shrink-0"
                               >
                                 Rifiuta
                               </button>
@@ -408,7 +408,7 @@ export function ProposalsView({
                                 type="button"
                                 disabled={isBusy}
                                 onClick={() => handleAction(p.id, 'reject')}
-                                className="min-h-[36px] px-3 rounded-lg border border-[#e3c3bd] bg-white text-[12px] font-semibold text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors disabled:opacity-50 whitespace-nowrap shrink-0"
+                                className="min-h-[36px] px-3 rounded-lg border border-[var(--color-alert-border)] bg-white text-[12px] font-semibold text-[var(--color-alert)] hover:bg-[var(--color-alert-tint)] transition-colors disabled:opacity-50 whitespace-nowrap shrink-0"
                               >
                                 Non approvare
                               </button>
