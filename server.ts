@@ -114,7 +114,6 @@ db.exec(`
   );
 `);
 
-// --- Migrazioni sicure esistenti ---
 const chairCols = db.prepare('PRAGMA table_info(chairs)').all() as Array<{ name: string }>;
 if (!chairCols.some((column) => column.name === 'active')) {
   db.exec('ALTER TABLE chairs ADD COLUMN active INTEGER NOT NULL DEFAULT 1');
@@ -134,7 +133,7 @@ for (const col of ['invite_code_hash', 'invite_code', 'sms_sent_at', 'move_sms_s
   }
 }
 
-// --- Nuove migrazioni strategiche (3 Livelli, Risk Score, Cancellatori Seriali) ---
+// Migrazioni strategiche: 3 Livelli, Risk Score, Cancellatori Seriali
 const procCols = db.prepare('PRAGMA table_info(procedures)').all() as Array<{ name: string }>;
 if (!procCols.some((c) => c.name === 'value_tier')) {
   db.exec("ALTER TABLE procedures ADD COLUMN value_tier TEXT NOT NULL DEFAULT 'MEDIUM'");
@@ -185,22 +184,20 @@ if (!count('users')) {
 
 // Seed demo clinical catalog & appointments
 if (!count('professionals')) {
-  const procedures: Array<[string, number, string, string[], string]> = [
-    ['Igiene', 45, 'Igiene', ['kit igiene'], 'LOW'],
-    ['Prima visita', 45, 'Odontoiatria', ['radiologia'], 'HIGH'],
-    ['Conservativa', 60, 'Conservativa', ['turbina'], 'MEDIUM'],
-    ['Endodonzia', 90, 'Endodonzia', ['turbina', 'microscopio'], 'MEDIUM'],
-    ['Implantologia', 90, 'Chirurgia', ['chirurgia', 'radiologia'], 'HIGH'],
-    ['Chirurgia orale', 60, 'Chirurgia', ['chirurgia'], 'HIGH'],
-    ['Protesi', 60, 'Protesi', ['scanner intraorale'], 'MEDIUM'],
-    ['Ortodonzia', 45, 'Ortodonzia', ['scanner intraorale'], 'MEDIUM'],
-    ['Controllo', 30, 'Odontoiatria', [], 'LOW'],
+  const procedures: Array<[string, number, string, string[]]> = [
+    ['Igiene', 45, 'Igiene', ['kit igiene']],
+    ['Prima visita', 45, 'Odontoiatria', ['radiologia']],
+    ['Conservativa', 60, 'Conservativa', ['turbina']],
+    ['Endodonzia', 90, 'Endodonzia', ['turbina', 'microscopio']],
+    ['Implantologia', 90, 'Chirurgia', ['chirurgia', 'radiologia']],
+    ['Chirurgia orale', 60, 'Chirurgia', ['chirurgia']],
+    ['Protesi', 60, 'Protesi', ['scanner intraorale']],
+    ['Ortodonzia', 45, 'Ortodonzia', ['scanner intraorale']],
+    ['Controllo', 30, 'Odontoiatria', []],
   ];
-  const addProc = db.prepare(
-    'INSERT INTO procedures(name,duration,specialty,resources,value_tier) VALUES(?,?,?,?,?)'
-  );
-  for (const [name, duration, specialty, resources, valueTier] of procedures) {
-    addProc.run(name, duration, specialty, JSON.stringify(resources), valueTier);
+  const addProc = db.prepare('INSERT INTO procedures(name,duration,specialty,resources) VALUES(?,?,?,?)');
+  for (const [name, duration, specialty, resources] of procedures) {
+    addProc.run(name, duration, specialty, JSON.stringify(resources));
   }
 
   const sets = [
@@ -314,7 +311,7 @@ if (controlProcedure) {
   }
 }
 
-// Seed 2 realistic future demo cancellations once
+// Seed 2 realistic future demo cancellations once so the Disdette section is immediately actionable
 const hasAnyCancellation =
   Number(
     (
@@ -487,8 +484,7 @@ function getTextBeeSettings() {
   const savedDevice = getSetting('textbee_device_id')?.value?.trim() || '';
   const envDevice = (process.env.TEXTBEE_DEVICE_ID || '').trim();
   const savedSimRaw = getSetting('textbee_sim_subscription_id')?.value?.trim() || '';
-  const parsedSim =
-    savedSimRaw !== '' && Number.isInteger(Number(savedSimRaw)) ? Number(savedSimRaw) : null;
+  const parsedSim = savedSimRaw !== '' && Number.isInteger(Number(savedSimRaw)) ? Number(savedSimRaw) : null;
   return {
     configured: Boolean(apiKey),
     apiKey,
@@ -582,9 +578,7 @@ async function dispatchTextBeeSms(params: {
   message: string;
   deviceIdOverride?: string;
   simSubscriptionIdOverride?: number | null;
-}): Promise<
-  { ok: true; batchId: string | null; deviceId: string | null } | { ok: false; error: string }
-> {
+}): Promise<{ ok: true; batchId: string | null; deviceId: string | null } | { ok: false; error: string }> {
   const cfg = getTextBeeSettings();
   if (!cfg.configured) {
     return { ok: false, error: 'Chiave API TextBee non configurata sul server' };
@@ -712,6 +706,112 @@ function calculateRiskScore(params: {
     (new Date(params.startsAt).getTime() - new Date(params.createdAt).getTime()) / 86_400_000;
   if (leadDays > 21) score += 15;
   return Math.min(score, 100);
+}
+
+type ReplyIntent = 'CONFIRMED' | 'UNCERTAIN' | 'CANCELLED' | 'FAQ_OR_OTHER';
+
+interface AiReplyClassification {
+  intent: ReplyIntent;
+  confidence: number;
+  reason: string;
+  suggested_reply: string;
+}
+
+async function classifyPatientReplyWithGemini(params: {
+  message: string;
+  patientName: string;
+  procedure: string;
+  startsAt: string;
+  studioName: string;
+}): Promise<{ ok: true; data: AiReplyClassification } | { ok: false; error: string }> {
+  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+  if (!apiKey) {
+    return { ok: false, error: 'GEMINI_API_KEY non configurata sul server (.env)' };
+  }
+
+  const model = (process.env.GEMINI_MODEL || 'gemini-2.5-flash').trim();
+  const when = formatItalianDateTime(params.startsAt);
+  const firstName = params.patientName.split(' ')[0] || params.patientName;
+
+  const systemPrompt = `Sei l'assistente di segreteria di uno studio dentistico (${params.studioName}).
+Analizza la risposta del paziente relativa al suo appuntamento (${params.procedure} il ${when}) e classificala in uno di questi 4 intenti:
+- CONFIRMED: conferma chiaramente la presenza (es. "ok", "ci sono", "perfetto", "confermo").
+- UNCERTAIN: è vago, rimanda o dice "forse" (es. "dovrei esserci", "vedo come sto", "devo controllare", "non sono sicuro").
+- CANCELLED: disdice o chiede di spostare perché non può venire.
+- FAQ_OR_OTHER: fa domande su costi, dolore, parcheggio, documenti o altro senza confermare né disdire.
+
+Genera anche una "suggested_reply" breve, professionale ed empatica in italiano per WhatsApp/SMS:
+- Se CONFIRMED: ringrazia brevemente e ricorda l'orario.
+- Se UNCERTAIN: NON accettare il "forse"; chiedi conferma esplicita entro domani sera alle 18:00 spiegando gentilmente che altrimenti lo slot verrà offerto ad altri pazienti in lista d'attesa.
+- Se CANCELLED: rassicura che non c'è problema e chiedi disponibilità proponendo di fissare una nuova data.
+- Se FAQ_OR_OTHER: rispondi in modo rassicurante invitando a parlarne in visita o a chiamare lo studio.`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12_000);
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `Paziente: ${firstName}\nMessaggio ricevuto: "${params.message}"` }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: 'OBJECT',
+              properties: {
+                intent: {
+                  type: 'STRING',
+                  enum: ['CONFIRMED', 'UNCERTAIN', 'CANCELLED', 'FAQ_OR_OTHER'],
+                },
+                confidence: { type: 'NUMBER' },
+                reason: { type: 'STRING' },
+                suggested_reply: { type: 'STRING' },
+              },
+              required: ['intent', 'confidence', 'reason', 'suggested_reply'],
+            },
+          },
+        }),
+      }
+    );
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      error?: { message?: string };
+    };
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: payload.error?.message || `Errore Gemini HTTP ${response.status}`,
+      };
+    }
+
+    const rawText = payload.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) {
+      return { ok: false, error: 'Risposta vuota da Gemini' };
+    }
+
+    const parsed = JSON.parse(rawText) as AiReplyClassification;
+    return { ok: true, data: parsed };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? `Errore Gemini: ${err.message}` : 'Errore connessione Gemini',
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function sendAppointmentMoveSms(
@@ -1039,7 +1139,7 @@ async function startServer() {
 
   // Health check
   app.get('/health', (_req, res) => {
-    res.json({ ok: true, version: '5.1.0' });
+    res.json({ ok: true, version: '5.0.0' });
   });
 
   // Auth routes
@@ -1114,8 +1214,7 @@ async function startServer() {
 
     const rows = db
       .prepare(
-        `SELECT a.*, p.name patient, p.phone, p.late_cancel_count,
-                pr.name procedure, pr.duration, pr.specialty, pr.value_tier,
+        `SELECT a.*, p.name patient, p.phone, pr.name procedure, pr.duration, pr.specialty,
                 pro.name professional, pro.color, c.name chair,
                 (SELECT state FROM appointment_confirmations x WHERE x.appointment_id=a.id ORDER BY x.id DESC LIMIT 1) confirmation_state,
                 (SELECT status FROM message_outbox m WHERE m.appointment_id=a.id ORDER BY m.id DESC LIMIT 1) reminder_status
@@ -1206,7 +1305,7 @@ async function startServer() {
     const reminders = db
       .prepare(
         `SELECT m.id, m.appointment_id, m.recipient, m.status, m.sent_at, m.sent_via, m.sent_from,
-                m.created_at, m.level, m.risk_score, a.starts_at, pr.name procedure
+                m.created_at, a.starts_at, pr.name procedure
          FROM message_outbox m
          JOIN appointments a ON a.id = m.appointment_id
          JOIN procedures pr ON pr.id = a.procedure_id
@@ -1422,9 +1521,8 @@ async function startServer() {
   app.post('/api/procedures', (req, res) => {
     const auth = requireAuth(req, res);
     if (!auth) return;
-    const { name, duration, specialty, resources = [], value_tier = 'MEDIUM' } = req.body || {};
+    const { name, duration, specialty, resources = [] } = req.body || {};
     const mins = Number(duration);
-    const tier = ['LOW', 'MEDIUM', 'HIGH'].includes(value_tier) ? value_tier : 'MEDIUM';
     const resourcesList = [
       ...new Set(
         (Array.isArray(resources) ? resources : []).map((x) => String(x).trim()).filter(Boolean)
@@ -1443,12 +1541,10 @@ async function startServer() {
       return res.status(400).json({ error: 'Controlla nome, specialità, durata e attrezzature' });
     }
     const r = db
-      .prepare(
-        'INSERT INTO procedures(name,duration,specialty,resources,value_tier) VALUES(?,?,?,?,?)'
-      )
-      .run(name.trim(), mins, specialty.trim(), JSON.stringify(resourcesList), tier);
+      .prepare('INSERT INTO procedures(name,duration,specialty,resources) VALUES(?,?,?,?)')
+      .run(name.trim(), mins, specialty.trim(), JSON.stringify(resourcesList));
     const id = Number(r.lastInsertRowid);
-    log(auth.username, 'procedure_created', { procedure_id: id, name: name.trim(), value_tier: tier });
+    log(auth.username, 'procedure_created', { procedure_id: id, name: name.trim() });
     return res.status(201).json({ id });
   });
 
@@ -1459,9 +1555,8 @@ async function startServer() {
     const existing = db.prepare('SELECT id FROM procedures WHERE id=?').get(id);
     if (!existing) return res.status(404).json({ error: 'Trattamento non trovato' });
 
-    const { name, duration, specialty, resources = [], value_tier = 'MEDIUM' } = req.body || {};
+    const { name, duration, specialty, resources = [] } = req.body || {};
     const mins = Number(duration);
-    const tier = ['LOW', 'MEDIUM', 'HIGH'].includes(value_tier) ? value_tier : 'MEDIUM';
     const resourcesList = [
       ...new Set(
         (Array.isArray(resources) ? resources : []).map((x) => String(x).trim()).filter(Boolean)
@@ -1479,10 +1574,14 @@ async function startServer() {
     ) {
       return res.status(400).json({ error: 'Controlla nome, specialità, durata e attrezzature' });
     }
-    db.prepare(
-      'UPDATE procedures SET name=?, duration=?, specialty=?, resources=?, value_tier=? WHERE id=?'
-    ).run(name.trim(), mins, specialty.trim(), JSON.stringify(resourcesList), tier, id);
-    log(auth.username, 'procedure_updated', { procedure_id: id, name: name.trim(), value_tier: tier });
+    db.prepare('UPDATE procedures SET name=?, duration=?, specialty=?, resources=? WHERE id=?').run(
+      name.trim(),
+      mins,
+      specialty.trim(),
+      JSON.stringify(resourcesList),
+      id
+    );
+    log(auth.username, 'procedure_updated', { procedure_id: id, name: name.trim() });
     return res.json({ ok: true });
   });
 
@@ -1710,8 +1809,7 @@ async function startServer() {
     }
     log(auth.username, 'sms_device_updated', {
       device_id: deviceId || 'automatico',
-      sim_subscription_id:
-        rawSim === null || rawSim === '' || rawSim === undefined ? 'predefinita' : Number(rawSim),
+      sim_subscription_id: rawSim === null || rawSim === '' || rawSim === undefined ? 'predefinita' : Number(rawSim),
     });
     const cfg = getTextBeeSettings();
     const { devices, error } = await fetchTextBeeDevices();
@@ -1733,8 +1831,7 @@ async function startServer() {
     const whatsapp = getWhatsAppConfig();
     const recipient = String(req.body?.recipient || '').trim();
     const message = String(req.body?.message || '').trim();
-    const deviceId =
-      typeof req.body?.device_id === 'string' ? req.body.device_id.trim() : undefined;
+    const deviceId = typeof req.body?.device_id === 'string' ? req.body.device_id.trim() : undefined;
     const rawSim = req.body?.sim_subscription_id;
     const simSubscriptionIdOverride =
       rawSim === null || rawSim === '' || rawSim === undefined
@@ -1745,9 +1842,7 @@ async function startServer() {
 
     const normalized = normalizeWhatsAppPhone(recipient, whatsapp.default_prefix);
     if (!normalized) {
-      return res
-        .status(400)
-        .json({ error: 'Inserisci un numero destinatario valido (es. +39 333 123 4567)' });
+      return res.status(400).json({ error: 'Inserisci un numero destinatario valido (es. +39 333 123 4567)' });
     }
     if (message.length < 2 || message.length > 600) {
       return res.status(400).json({ error: 'Inserisci un testo tra 2 e 600 caratteri' });
@@ -1825,6 +1920,106 @@ async function startServer() {
     return res.json({ ok: true, batch_id: result.batchId });
   });
 
+  app.post('/api/ai/classify-reply', async (req, res) => {
+    const auth = requireAuth(req, res);
+    if (!auth) return;
+
+    const message = String(req.body?.message || '').trim();
+    const reminderId = Number(req.body?.reminder_id || 0);
+    const autoApply = req.body?.auto_apply === true;
+
+    if (message.length < 1 || message.length > 1000) {
+      return res.status(400).json({ error: 'Inserisci il messaggio ricevuto dal paziente' });
+    }
+
+    const row = db
+      .prepare(
+        `SELECT m.id outbox_id, m.appointment_id, m.confirmation_id,
+                a.patient_id, a.starts_at, a.status appointment_status,
+                p.name patient, pr.name procedure
+         FROM message_outbox m
+         JOIN appointments a ON a.id = m.appointment_id
+         JOIN patients p ON p.id = a.patient_id
+         JOIN procedures pr ON pr.id = a.procedure_id
+         WHERE m.id=?`
+      )
+      .get(reminderId) as
+      | {
+          outbox_id: number;
+          appointment_id: number;
+          confirmation_id: number;
+          patient_id: number;
+          starts_at: string;
+          appointment_status: string;
+          patient: string;
+          procedure: string;
+        }
+      | undefined;
+
+    if (!row) {
+      return res.status(404).json({ error: 'Promemoria non trovato' });
+    }
+
+    const whatsapp = getWhatsAppConfig();
+    const aiRes = await classifyPatientReplyWithGemini({
+      message,
+      patientName: row.patient,
+      procedure: row.procedure,
+      startsAt: row.starts_at,
+      studioName: whatsapp.sender_name,
+    });
+
+    if (!aiRes.ok) {
+      return res.status(502).json({ error: aiRes.error });
+    }
+
+    const { intent, confidence, reason, suggested_reply } = aiRes.data;
+    let appliedAction: string | null = null;
+    let createdProposals = 0;
+
+    if (autoApply && row.appointment_status === 'booked') {
+      if (intent === 'CONFIRMED') {
+        db.prepare(
+          "UPDATE appointment_confirmations SET state='confirmed', responded_at=CURRENT_TIMESTAMP WHERE id=?"
+        ).run(row.confirmation_id);
+        db.prepare("UPDATE message_outbox SET status='responded' WHERE id=?").run(row.outbox_id);
+        appliedAction = 'appointment_confirmed';
+      } else if (intent === 'CANCELLED') {
+        db.prepare("UPDATE appointments SET status='cancelled' WHERE id=?").run(row.appointment_id);
+        trackLateCancellation(row.patient_id, row.starts_at);
+        db.prepare(
+          "UPDATE appointment_confirmations SET state='cancelled', responded_at=CURRENT_TIMESTAMP WHERE appointment_id=? AND state='pending'"
+        ).run(row.appointment_id);
+        db.prepare(
+          "UPDATE message_outbox SET status='cancelled' WHERE appointment_id=? AND status IN ('prepared','sent')"
+        ).run(row.appointment_id);
+
+        const ap = db
+          .prepare('SELECT * FROM appointments WHERE id=?')
+          .get(row.appointment_id) as unknown as AppointmentRow;
+        createdProposals = cancellationProposals(ap, auth.username, true).length;
+        appliedAction = 'appointment_cancelled_and_proposals_generated';
+      }
+    }
+
+    log(auth.username, 'ai_reply_classified', {
+      outbox_id: row.outbox_id,
+      appointment_id: row.appointment_id,
+      intent,
+      confidence,
+      applied_action: appliedAction,
+    });
+
+    return res.json({
+      intent,
+      confidence,
+      reason,
+      suggested_reply,
+      applied_action: appliedAction,
+      proposals_created: createdProposals,
+    });
+  });
+
   app.post('/api/reminders/:id/send-sms', async (req, res) => {
     const auth = requireAuth(req, res);
     if (!auth) return;
@@ -1868,11 +2063,7 @@ async function startServer() {
 
     db.prepare(
       "UPDATE message_outbox SET status='sent', sent_at=CURRENT_TIMESTAMP, sent_via='textbee_sms', sent_from=?, provider_message_id=? WHERE id=?"
-    ).run(
-      result.deviceId ? `TextBee (${result.deviceId.slice(0, 8)})` : 'TextBee SMS',
-      result.batchId,
-      msg.id
-    );
+    ).run(result.deviceId ? `TextBee (${result.deviceId.slice(0, 8)})` : 'TextBee SMS', result.batchId, msg.id);
 
     log(auth.username, 'reminder_sent_sms', {
       outbox_id: msg.id,
@@ -1976,6 +2167,7 @@ async function startServer() {
       }
     }
 
+    // WhatsApp Web / App dispatch mode (records send with linked studio number)
     db.prepare(
       "UPDATE message_outbox SET status='sent', sent_at=CURRENT_TIMESTAMP, sent_via='whatsapp_web', sent_from=? WHERE id=?"
     ).run(whatsapp.phone, msg.id);
@@ -2189,7 +2381,7 @@ async function startServer() {
     });
   });
 
-  // Public Proposal Response Portal
+  // Public Proposal Response Portal (Real SMS Advance Offer)
   app.get('/api/public/proposal', (req, res) => {
     const ip = req.socket.remoteAddress || 'unknown';
     if (!allowConfirmationAttempt(ip)) {
@@ -2231,11 +2423,7 @@ async function startServer() {
       | undefined;
 
     if (!row) return res.status(404).json({ error: 'Proposta non trovata o codice scaduto' });
-    if (
-      row.state !== 'pending_patient' ||
-      row.appointment_status !== 'booked' ||
-      row.freed_status !== 'cancelled'
-    ) {
+    if (row.state !== 'pending_patient' || row.appointment_status !== 'booked' || row.freed_status !== 'cancelled') {
       return res.status(409).json({ error: 'Questa proposta di anticipo non è più disponibile' });
     }
     if (new Date(row.freed_starts_at).getTime() < Date.now()) {
@@ -2288,11 +2476,7 @@ async function startServer() {
       | undefined;
 
     if (!row) return res.status(404).json({ error: 'Proposta non trovata' });
-    if (
-      row.state !== 'pending_patient' ||
-      row.appointment_status !== 'booked' ||
-      row.freed_status !== 'cancelled'
-    ) {
+    if (row.state !== 'pending_patient' || row.appointment_status !== 'booked' || row.freed_status !== 'cancelled') {
       return res.status(409).json({ error: 'Questa proposta non è più in attesa di risposta' });
     }
     if (new Date(row.freed_starts_at).getTime() < Date.now()) {
@@ -2304,11 +2488,9 @@ async function startServer() {
       nextState,
       row.id
     );
-    log(
-      'cliente_sms',
-      action === 'accept' ? 'proposal_patient_accept' : 'proposal_patient_decline',
-      { proposal_id: row.id }
-    );
+    log('cliente_sms', action === 'accept' ? 'proposal_patient_accept' : 'proposal_patient_decline', {
+      proposal_id: row.id,
+    });
     return res.json({ state: nextState });
   });
 
@@ -2387,9 +2569,7 @@ async function startServer() {
 
     if (!row) return res.status(404).json({ error: 'Proposta non trovata' });
     if (row.state !== 'pending_patient') {
-      return res
-        .status(409)
-        .json({ error: 'La proposta non è più in attesa di risposta del paziente' });
+      return res.status(409).json({ error: 'La proposta non è più in attesa di risposta del paziente' });
     }
 
     const whatsapp = getWhatsAppConfig();
@@ -2784,6 +2964,7 @@ async function startServer() {
       target.id
     );
 
+    // Invalidate outdated confirmations & reminders for moved appointment
     db.prepare(
       "UPDATE appointment_confirmations SET state='cancelled', responded_at=CURRENT_TIMESTAMP WHERE appointment_id=? AND state='pending'"
     ).run(target.id);
@@ -2791,6 +2972,7 @@ async function startServer() {
       "UPDATE message_outbox SET status='cancelled' WHERE appointment_id=? AND status IN ('prepared','sent')"
     ).run(target.id);
 
+    // Resolve any pending proposals targeting this freed slot
     db.prepare(
       "UPDATE proposals SET state='approved', approved_by=?, approved_at=CURRENT_TIMESTAMP WHERE freed_appointment_id=? AND appointment_id=? AND state IN ('pending_patient','accepted_waiting_approval')"
     ).run(auth.username, freed.id, target.id);
@@ -2840,7 +3022,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`AgendaSmart V5.1 pronta su http://0.0.0.0:${PORT}`);
+    console.log(`AgendaSmart V5 pronta su http://0.0.0.0:${PORT}`);
     const runBatches = () => {
       try {
         prepareReminderBatch(undefined, '24h');
